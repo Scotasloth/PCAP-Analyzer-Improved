@@ -15,7 +15,6 @@ def parsePcap(pcapFile):
        #key for the dictionaty
         key = f'{socket.inet_ntoa(ip.src)} -> { socket.inet_ntoa(ip.dst)}'
       
-        packet = 0
         ipDict[key]= ipDict.setdefault(key, 0) + 1
 
     f.close()
