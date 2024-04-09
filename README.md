@@ -3,11 +3,6 @@
 ## **Overview**
 
 This project is an attempt to improve my 2nd year coursework. Its main purpose it to read and output data from PCAP files created using Wireshark.
-The main methods of this is:
--printing all ip connections to a .txt file
--building a model of network connections
--creating a graph to show network traffic
--use the ip's in the PCAP file to geo-locate their general location.
 
 ## **Features**
 
