@@ -13,7 +13,7 @@ import geoip2
 import simplekml
 import re
 
-pcapFile = "main.py"
+pcapFile = None
 
 def main():
 
