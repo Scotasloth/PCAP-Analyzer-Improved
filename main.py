@@ -1,9 +1,5 @@
-from PIL import ImageTk,Image
-import sys
-import os
 from customtkinter import * 
-from tkinter.filedialog import askopenfilename
-from tkinter.filedialog import asksaveasfile
+from tkinter.filedialog import askopenfilename, asksaveasfile
 import dpkt 
 import socket 
 import datetime
@@ -21,9 +17,9 @@ def main():
 
     CTkButton(master=root, text="Read PCAP", command =lambda:get_pcap()).place(relx=.5, rely=.5, anchor="center")
     CTkButton(master=root, text="Save IP Info", command=lambda:save_file()).place(relx=.5, rely=.7, anchor="center")
-    CTkButton(master=root, text="Create Network Model", command=lambda:net_model()).place(relx=.9, rely=.5, anchor="center")
-    CTkButton(master=root, text="Create Graph", command=lambda:geo()).place(relx=.9, rely=.3, anchor="center")
-    CTkButton(master=root, text="Geolocation", command=lambda:graph()).place(relx=.9, rely=.1, anchor="center")
+    CTkButton(master=root, text="Create Network Model", command=lambda:net_model(pcap)).place(relx=.9, rely=.5, anchor="center")
+    CTkButton(master=root, text="Create Graph", command=lambda:geo(pcap)).place(relx=.9, rely=.3, anchor="center")
+    CTkButton(master=root, text="Geolocation", command=lambda:graph(pcap)).place(relx=.9, rely=.1, anchor="center")
 
     root.mainloop()
 
@@ -94,10 +90,6 @@ def parsePcap(pcap):
         ipDict[key]= ipDict.setdefault(key, 0) + 1
 
     f.close()
-
-    #prints all keye and values in dictionary
-    #for keys, value in ipDict.items():
-            #print(keys, value)
     return ipDict  
 
 def tcpTime():
@@ -189,8 +181,8 @@ def packet_type(pcap):
     except Exception as err:
         print(f'{err}')
 
-def geo():
-    ip = parsePcap()
+def geo(pcap):
+    ip = parsePcap(pcap)
 
     files = [('KML Document', '*.kml')]
     kmlName = asksaveasfile(filetypes = files, defaultextension = files)
@@ -218,7 +210,7 @@ def extract():
     f = open(pcap, 'rb')
     pcap= dpkt.pcap.Reader(f)
 
-def graph():
+def graph(pcap):
     print("i exist") 
 
 def meanAvg(val1, val2):
