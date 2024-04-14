@@ -13,8 +13,6 @@ import geoip2
 import simplekml
 import re
 
-pcapFile = None
-
 def main():
 
     root = CTk()
@@ -22,7 +20,7 @@ def main():
     root.title("PCAP Analyzer Requeim")
 
     CTkButton(master=root, text="Read PCAP", command =lambda:get_pcap()).place(relx=.5, rely=.5, anchor="center")
-    CTkButton(master=root, text="Save IP Info", command=lambda:save_ile()).place(relx=.5, rely=.7, anchor="center")
+    CTkButton(master=root, text="Save IP Info", command=lambda:save_file()).place(relx=.5, rely=.7, anchor="center")
     CTkButton(master=root, text="Create Network Model", command=lambda:net_model()).place(relx=.9, rely=.5, anchor="center")
     CTkButton(master=root, text="Create Graph", command=lambda:geo()).place(relx=.9, rely=.3, anchor="center")
     CTkButton(master=root, text="Geolocation", command=lambda:graph()).place(relx=.9, rely=.1, anchor="center")
@@ -33,13 +31,16 @@ def get_pcap():
     filetypes = (
         ('pcap files', '*.pcap'),
     )
+    global pcap
+    pcap = askopenfilename(title='Select File', initialdir='*\PCAP Analyzer Improved', filetypes=filetypes )
 
-    pcapFile = askopenfilename(title='Select File', initialdir='*\PCAP Analyzer Improved', filetypes=filetypes )
-
-    return pcapFile
-
-def save_ile():
-    ip = parsePcap(pcapFile)
+def save_file():
+    global pcap 
+    if pcap is None:
+        print("No pcap file selected.")
+        return
+    
+    ip = parsePcap(pcap)
 
     files = [('Text Document', '*.txt')]
     file = asksaveasfile(filetypes = files, defaultextension = files)
@@ -49,7 +50,7 @@ def save_ile():
         data = keys + " " + valueStr 
         file.write(data + "\n")
 
-    file.write(packet_type(pcapFile))
+    file.write(packet_type(pcap))
     file.close
 
 def selectDir():
@@ -57,8 +58,8 @@ def selectDir():
     
     print("i exist")
 
-def net_model():
-    pcap = parsePcap(pcapFile)
+def net_model(pcap):
+    pcap = parsePcap(pcap)
 
     g = nx.Graph()
 
@@ -76,9 +77,9 @@ def net_model():
     print('Network.png has been saved successfully')
     plt.show()
 
-def parsePcap():
-    f = open(pcapFile, 'rb')
-    pcap= dpkt.pcap.Reader(f)
+def parsePcap(pcap):
+    f = open(pcap, 'rb')
+    pcap = dpkt.pcap.Reader(f)
     ipDict = {}
 
     #loops through all ips
@@ -114,10 +115,10 @@ def igmpTime():
     print("i exist")
 
 
-def packet_type():
+def packet_type(pcap):
     
     try:
-        f = open(pcapFile, 'rb')
+        f = open(pcap, 'rb')
         pcap = dpkt.pcap.Reader(f)
 
         tcp = 0
@@ -214,7 +215,7 @@ def geo():
             print(f'{err}')
 
 def extract():
-    f = open(pcapFile, 'rb')
+    f = open(pcap, 'rb')
     pcap= dpkt.pcap.Reader(f)
 
 def graph():
