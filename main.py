@@ -186,6 +186,8 @@ def geo(pcap):
     files = [('KML Document', '*.kml')]
     kmlName = asksaveasfile(filetypes = files, defaultextension = files)
 
+    kml = simplekml.Kml()
+    
     for keys, value in ip.items():
         try:
             srcip = re.search(r'^\d+\.\d+\.\d+\.\d+', keys)
@@ -194,9 +196,7 @@ def geo(pcap):
             reader = geoip2.database.Reader(r'C:\Users\Ross\OneDrive\Documents\Programs\Python\PCAP Analyzer Improved\GeoLite2-City_20190129.mmdb')
             type(reader)
             rec = reader.city(f'{srcip.group()}')
-           
-
-            kml = simplekml.Kml()
+        
             pnt = kml.newpoint(name = f'{srcip.group()}', coords = [(rec.location.longitude, rec.location.latitude)])
 
         except Exception as err:
