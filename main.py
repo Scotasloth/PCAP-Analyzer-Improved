@@ -12,13 +12,21 @@ def main():
     root = CTk()
     root.geometry("500x500")
     root.title("PCAP Analyzer Requeim")
+    set_appearance_mode("dark")
 
-    CTkButton(master=root, text="Read PCAP", command =lambda:get_pcap()).place(relx=.5, rely=.5, anchor="center")
-    CTkButton(master=root, text="Save IP Info", command=lambda:save_file()).place(relx=.5, rely=.7, anchor="center")
-    CTkButton(master=root, text="Create Network Model", command=lambda:net_model(pcap)).place(relx=.9, rely=.5, anchor="center")
-    CTkButton(master=root, text="Create Graph", command=lambda:graph(pcap)).place(relx=.9, rely=.3, anchor="center")
-    CTkButton(master=root, text="Geolocation", command=lambda:geo(pcap)).place(relx=.9, rely=.1, anchor="center")
-    CTkButton(master=root, text="Exctract Data", command=lambda: extract(pcap, root)).place(relx=.5, rely=.1, anchor="center")
+    button_frame = CTkFrame(master=root, fg_color="#8D6F3A", width=400, height=300)
+    
+   
+    button_frame.pack(expand=True)
+
+    CTkButton(master=button_frame, text="Read PCAP", command =lambda:get_pcap()).place(relx=.3, rely=.1, anchor="center")
+    CTkButton(master=button_frame, text="Save IP Info", command=lambda:save_file()).place(relx=.3, rely=.3, anchor="center")
+    CTkButton(master=button_frame, text="Create Network Model", command=lambda:net_model(pcap)).place(relx=.3, rely=.5, anchor="center")
+    CTkButton(master=button_frame, text="Create Graph", command=lambda:graph(pcap)).place(relx=.7, rely=.3, anchor="center")
+    CTkButton(master=button_frame, text="Geolocation", command=lambda:geo(pcap)).place(relx=.7, rely=.1, anchor="center")
+    CTkButton(master=button_frame, text="Exctract Data", command=lambda: extract(pcap, root)).place(relx=.7, rely=.5, anchor="center")
+
+    CTkLabel(master=root, text="")
 
     root.mainloop()
 
@@ -187,7 +195,7 @@ def geo(pcap):
     kmlName = asksaveasfile(filetypes = files, defaultextension = files)
 
     kml = simplekml.Kml()
-    
+
     for keys, value in ip.items():
         try:
             srcip = re.search(r'^\d+\.\d+\.\d+\.\d+', keys)
