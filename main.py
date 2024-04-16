@@ -4,6 +4,8 @@ import socket, dpkt, re, base64, datetime
 import networkx as nx
 import matplotlib.pyplot as plt
 import geoip2, simplekml
+import geoip2.database
+import os
 
 def main():
 
@@ -189,19 +191,31 @@ def geo(pcap):
             srcip = re.search(r'^\d+\.\d+\.\d+\.\d+', keys)
             dstip = re.search(r'\s\d+\.\d+\.\d+\.\d+', keys)
         
-            reader = geoip2.database.Reader(r'*\PCAP Analyzer Improved\GeoLite2-City_20190129.mmdb')
+            reader = geoip2.database.Reader(r'C:\Users\Ross\OneDrive\Documents\Programs\Python\PCAP Analyzer Improved\GeoLite2-City_20190129.mmdb')
             type(reader)
             rec = reader.city(f'{srcip.group()}')
            
 
             kml = simplekml.Kml()
             pnt = kml.newpoint(name = f'{srcip.group()}', coords = [(rec.location.longitude, rec.location.latitude)])
-            
-            print(f'File {kmlName} has been saved')
-            kml.save(f'{kmlName}.kml')
 
         except Exception as err:
             print(f'{err}')
+
+        try:
+            # Save the KML file with the correct extension
+            kml_filename = kmlName.name
+            if not kml_filename.endswith('.kml'):
+                kml_filename += '.kml'
+
+            # Save the KML file
+            kml.save(kml_filename)
+
+            # Print a message indicating the successful save
+            print(f'File {kml_filename} has been saved')
+
+        except Exception as err:
+            print(f'Error saving KML file: {err}')
 
 def extract(pcap, root):
     new_window = CTkToplevel(root)
@@ -283,13 +297,6 @@ def meanAvg(val1, val2):
     mean = val1/val2
 
     return mean
-
-def medianAvg():
-    return
-
-
-def modeAvg():
-    return
 
 if __name__ == '__main__':
     main()
