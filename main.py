@@ -1,13 +1,9 @@
 from customtkinter import * 
 from tkinter.filedialog import askopenfilename, asksaveasfile
-import dpkt 
-import socket 
-import datetime
+import socket, dpkt, re, base64, datetime
 import networkx as nx
 import matplotlib.pyplot as plt
-import geoip2
-import simplekml
-import re
+import geoip2, simplekml
 
 def main():
 
@@ -20,7 +16,7 @@ def main():
     CTkButton(master=root, text="Create Network Model", command=lambda:net_model(pcap)).place(relx=.9, rely=.5, anchor="center")
     CTkButton(master=root, text="Create Graph", command=lambda:graph(pcap)).place(relx=.9, rely=.3, anchor="center")
     CTkButton(master=root, text="Geolocation", command=lambda:geo(pcap)).place(relx=.9, rely=.1, anchor="center")
-    CTkButton(master=root, text="Exctract Data", command=lambda: extract(pcap)).place(relx=.5, rely=.1, anchor="center")
+    CTkButton(master=root, text="Exctract Data", command=lambda: extract(pcap, root)).place(relx=.5, rely=.1, anchor="center")
 
     root.mainloop()
 
@@ -207,7 +203,16 @@ def geo(pcap):
         except Exception as err:
             print(f'{err}')
 
-def extract(pcap):
+def extract(pcap, root):
+    new_window = CTkToplevel(root)
+    new_window.geometry("150x150")
+
+    CTkButton(master=new_window, text="Email", command=lambda:extract_email(pcap)).place(relx=.5, rely=.3, anchor="center")
+
+    CTkButton(master=new_window, text="Images", command=lambda:extract_image(pcap)).place(relx=.5, rely=.5, anchor="center")
+    
+
+def extract_image(pcap):
     try:
         f = open(pcap, 'rb')
         pcap= dpkt.pcap.Reader(f)
@@ -224,12 +229,49 @@ def extract(pcap):
                 continue
             
             tcp = ip.data
+            if tcp.dport != 80 and tcp.sport != 80:
+                continue    
+
+            http_data = tcp.data.decode("utf-8", errors="ignore")
+            image_match = re.findall(r'Content-Type: image/png\r\n\r\n([\s\S]+)', http_data)
+            print(image_match)
+
+            for img_data in image_match:
+
+                    image = base64.b64decode(img_data)
+    
+                    with open(f'image_{timestamp}.png', 'wb') as img_file:
+                        img_file.write(image)
+                    print(f"Image extracted and saved: image_{timestamp}.png")
+
+    except Exception as e:  
+        print(f"Error: {e}")
+
+def extract_email(pcap):
+    try:
+        f = open(pcap, 'rb')
+        pcap= dpkt.pcap.Reader(f)
+
+        files = [('Text Document', '*.txt')]
+        file = asksaveasfile(filetypes = files, defaultextension = files)
+
+        for timestamp, buf in pcap:
+
+            eth = dpkt.ethernet.Ethernet(buf)
+            if eth.type != dpkt.ethernet.ETH_TYPE_IP:
+                continue
+            
+            ip = eth.data
+            if ip.p != dpkt.ip.IP_PROTO_TCP:
+                continue
+            
+            tcp = ip.data
             if tcp.dport == 25 and tcp.sport == 25:
                 continue
             
             email_addresses = re.findall(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', tcp.data.decode('utf-8', errors='ignore'))
             for email in email_addresses:
-                print(f"Email Address: {email}")
+                file.write(email + "\n")
                 
     except Exception as e:  
         print(f"Error: {e}")
