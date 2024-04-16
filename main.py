@@ -18,8 +18,9 @@ def main():
     CTkButton(master=root, text="Read PCAP", command =lambda:get_pcap()).place(relx=.5, rely=.5, anchor="center")
     CTkButton(master=root, text="Save IP Info", command=lambda:save_file()).place(relx=.5, rely=.7, anchor="center")
     CTkButton(master=root, text="Create Network Model", command=lambda:net_model(pcap)).place(relx=.9, rely=.5, anchor="center")
-    CTkButton(master=root, text="Create Graph", command=lambda:geo(pcap)).place(relx=.9, rely=.3, anchor="center")
-    CTkButton(master=root, text="Geolocation", command=lambda:graph(pcap)).place(relx=.9, rely=.1, anchor="center")
+    CTkButton(master=root, text="Create Graph", command=lambda:graph(pcap)).place(relx=.9, rely=.3, anchor="center")
+    CTkButton(master=root, text="Geolocation", command=lambda:geo(pcap)).place(relx=.9, rely=.1, anchor="center")
+    CTkButton(master=root, text="Exctract Data", command=lambda: extract(pcap)).place(relx=.5, rely=.1, anchor="center")
 
     root.mainloop()
 
@@ -206,9 +207,32 @@ def geo(pcap):
         except Exception as err:
             print(f'{err}')
 
-def extract():
-    f = open(pcap, 'rb')
-    pcap= dpkt.pcap.Reader(f)
+def extract(pcap):
+    try:
+        f = open(pcap, 'rb')
+        pcap= dpkt.pcap.Reader(f)
+
+        for timestamp, buf in pcap:
+
+            eth = dpkt.ethernet.Ethernet(buf)
+
+            if eth.type != dpkt.ethernet.ETH_TYPE_IP:
+                continue
+            
+            ip = eth.data
+            if ip.p != dpkt.ip.IP_PROTO_TCP:
+                continue
+            
+            tcp = ip.data
+            if tcp.dport == 25 and tcp.sport == 25:
+                continue
+            
+            email_addresses = re.findall(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', tcp.data.decode('utf-8', errors='ignore'))
+            for email in email_addresses:
+                print(f"Email Address: {email}")
+                
+    except Exception as e:  
+        print(f"Error: {e}")
 
 def graph(pcap):
     print("i exist") 
