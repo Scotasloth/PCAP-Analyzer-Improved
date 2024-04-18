@@ -8,7 +8,7 @@ import geoip2.database
 import os
 
 def main():
-
+    #create GUI
     root = CTk()
     root.geometry("700x500")
     root.title("PCAP Analyzer Requeim")
@@ -24,8 +24,8 @@ def main():
     CTkButton(master=button_frame, text="Geolocation", command=lambda:geo(pcap)).place(relx=.7, rely=.1, anchor="center")
     CTkButton(master=button_frame, text="Exctract Data", command=lambda: extract(pcap, root)).place(relx=.7, rely=.5, anchor="center")
 
+    #global variable to be updated to display current PCAP file
     global pcap_name
-
     pcap_name = StringVar()
 
     CTkLabel(master=root, textvariable=pcap_name).place(relx=.5, rely=.9, anchor="center")
@@ -33,36 +33,44 @@ def main():
     root.mainloop()
 
 def get_pcap():
+    #restricts user to only select PCAP files
     filetypes = (
         ('pcap files', '*.pcap'),
     )
+    
     global pcap
+    #opens file explorer to allow use to choose PCAP file
     pcap = askopenfilename(title='Select File', initialdir='*\PCAP Analyzer Improved', filetypes=filetypes )
+
+    #updates pcap_name to show current PCAP file
     pcap_name.set(pcap)
 
 def save_file():
     global pcap 
+    #checks if a PCAP file has been selected
     if pcap is None:
         print("No pcap file selected.")
         return
     
+    #returns a dictionary containing the ip address from the PCAP file
     ip = parsePcap(pcap)
 
+    #creates a txt file for saving information to
     files = [('Text Document', '*.txt')]
     file = asksaveasfile(filetypes = files, defaultextension = files)
 
+    #loops through all keys and values in the ip dictionary
     for keys, value in ip.items():
         valueStr = str(value)
+
+        #lays out the ip info to display the src -> dst and how many times data was sent between them
         data = keys + " " + valueStr 
+
+        #writes the information to the txt file
         file.write(data + "\n")
 
     file.write(packet_type(pcap))
     file.close
-
-def selectDir():
-    dir = None
-    
-    print("i exist")
 
 def net_model(pcap):
     pcap = parsePcap(pcap)
