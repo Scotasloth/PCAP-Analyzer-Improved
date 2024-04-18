@@ -10,13 +10,11 @@ import os
 def main():
 
     root = CTk()
-    root.geometry("500x500")
+    root.geometry("700x500")
     root.title("PCAP Analyzer Requeim")
     set_appearance_mode("dark")
 
     button_frame = CTkFrame(master=root, fg_color="#8D6F3A", width=400, height=300)
-    
-   
     button_frame.pack(expand=True)
 
     CTkButton(master=button_frame, text="Read PCAP", command =lambda:get_pcap()).place(relx=.3, rely=.1, anchor="center")
@@ -26,7 +24,11 @@ def main():
     CTkButton(master=button_frame, text="Geolocation", command=lambda:geo(pcap)).place(relx=.7, rely=.1, anchor="center")
     CTkButton(master=button_frame, text="Exctract Data", command=lambda: extract(pcap, root)).place(relx=.7, rely=.5, anchor="center")
 
-    CTkLabel(master=root, text="")
+    global pcap_name
+
+    pcap_name = StringVar()
+
+    CTkLabel(master=root, textvariable=pcap_name).place(relx=.5, rely=.9, anchor="center")
 
     root.mainloop()
 
@@ -36,6 +38,7 @@ def get_pcap():
     )
     global pcap
     pcap = askopenfilename(title='Select File', initialdir='*\PCAP Analyzer Improved', filetypes=filetypes )
+    pcap_name.set(pcap)
 
 def save_file():
     global pcap 
