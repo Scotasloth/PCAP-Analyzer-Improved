@@ -110,21 +110,6 @@ def parsePcap(pcap):
     f.close()
     return ipDict  
 
-def tcpTime():
-    tcpTs = 0
-    print("i exist")
-
-    
-def udpTime():
-    udpTs = 0
-    print("i exist")
-
-
-def igmpTime():
-    igmpTs = 0
-    print("i exist")
-
-
 def packet_type(pcap):
     
     try:
@@ -310,7 +295,22 @@ def extract_email(pcap):
         print(f"Error: {e}")
 
 def graph(pcap):
-    print("i exist") 
+    times = [0]
+    packets = [0]
+
+    with open(pcap, 'rb') as f:
+        pcap = dpkt.pcap.Reader(f)
+        for ts, i in pcap:
+            time = datetime.datetime.fromtimestamp(ts)
+            times.append(time)
+
+    plt.plot(time, packets, marker="o", linestyle="-")
+    plt.xlabel("Time")
+    plt.ylabel("Traffic")
+    plt.title("Network Traffic")
+    plt.grid(True)
+
+    plt.show()
 
 def meanAvg(val1, val2):
     mean = val1/val2
